@@ -1,0 +1,114 @@
+/* ============================================================
+ * style.css —— 校园公共信息与数据展示中心 全局样式表
+ * 说明：在 Bootstrap 5 基础上补充的自定义样式，
+ *       涵盖概览卡片、状态标签、图表容器、响应式适配等。
+ * ============================================================ */
+
+/* ---------- 全局基础样式 ---------- */
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; /* 优先使用中文字体，保证中文显示 */
+  background-color: #f5f7fa; /* 页面整体浅灰背景，与白色卡片形成层次 */
+}
+
+/* ---------- 顶部导航栏 ---------- */
+.navbar-brand {
+  font-weight: 600; /* 品牌名加粗，突出站点标识 */
+}
+
+/* ---------- 概览卡片区域 ---------- */
+#summary-cards .card {
+  border: none;              /* 去掉默认边框，靠阴影区分层级 */
+  border-radius: 10px;       /* 圆角，视觉更柔和 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* 柔和投影 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* 悬浮动画过渡 */
+}
+
+#summary-cards .card:hover {
+  transform: translateY(-3px); /* 悬浮时轻微上浮 */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* 悬浮时阴影加深 */
+}
+
+#summary-cards .card-title {
+  font-size: 0.9rem;
+  color: #6c757d; /* 标题使用次要灰色 */
+}
+
+#summary-cards .card-text {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0d6efd; /* 核心数字用主题蓝，吸引注意力 */
+}
+
+/* ---------- 状态徽章（用于自习室状态） ---------- */
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* 开放状态 —— 绿色 */
+.status-open {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+/* 维修状态 —— 橙色 */
+.status-repair {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+/* 闭馆状态 —— 灰色 */
+.status-closed {
+  background-color: #e2e3e5;
+  color: #41464b;
+}
+
+/* ---------- 图表容器 ---------- */
+#usage-chart,
+#building-chart {
+  width: 100%; /* 让 ECharts 画布撑满卡片宽度 */
+}
+
+/* ---------- 运行说明手风琴 ---------- */
+.accordion-button:not(.collapsed) {
+  background-color: #e7f1ff; /* 展开时标题栏浅蓝背景 */
+  color: #0d6efd;
+}
+
+/* ---------- 自习室查询页面专属样式 ---------- */
+.room-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 座位进度条容器 */
+.seat-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* 座位已占用比例条 */
+.seat-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #198754, #ffc107, #dc3545); /* 从绿到红的渐变，占用率越高越偏红 */
+  transition: width 0.6s ease;
+}
+
+/* ---------- 响应式适配 ---------- */
+@media (max-width: 576px) {
+  #summary-cards .card-text {
+    font-size: 1.4rem; /* 小屏下缩小数字，避免溢出 */
+  }
+}

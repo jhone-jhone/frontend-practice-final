@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>校园公共信息与数据展示中心 · 信息首页</title>
+  <link href="libs/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-primary mb-4 sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">校园信息中心</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+              aria-controls="mainNav" aria-expanded="false" aria-label="切换导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">首页</a></li>
+          <li class="nav-item"><a class="nav-link" href="rooms.html">自习室查询</a></li>
+          <li class="nav-item"><a class="nav-link" href="#stats">使用统计</a></li>
+          <li class="nav-item"><a class="nav-link" href="three-d/campus.html">校园三维</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <p id="page-alert" class="alert alert-warning" role="alert">数据加载中...</p>
+
+    <!-- ── 概览 ── -->
+    <section id="home" class="mb-5">
+      <h1 class="h3">校园公共信息与数据展示中心</h1>
+      <p class="text-muted">
+        服务对象：在校学生与教工；功能模块：自习室查询、使用统计、校园三维展示；
+        数据来源：课程统一数据集（本地 JSON 加载，无需后端服务器）。
+      </p>
+      <div class="row g-3" id="summary-cards"></div>
+      <p class="text-muted small mt-2" id="data-updated"></p>
+      <a href="rooms.html" class="btn btn-primary btn-sm">前往自习室查询</a>
+    </section>
+
+    <!-- ── 使用统计 ── -->
+    <section id="stats" class="mb-5">
+      <h2 class="h4">使用统计</h2>
+      <p class="text-muted" id="stats-source"></p>
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h3 class="h6">各自习室空余座位（柱状图）</h3>
+              <div id="usage-chart" style="height:360px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h3 class="h6">各楼栋自习室数量占比（饼图）</h3>
+              <div id="building-chart" style="height:360px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 运行说明 ── -->
+    <section id="run" class="mb-5">
+      <h2 class="h4">运行说明</h2>
+      <div class="accordion" id="run-guide">
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#run1">
+              方式一：直接打开（最简单）
+            </button>
+          </h3>
+          <div id="run1" class="accordion-collapse collapse show" data-bs-parent="#run-guide">
+            <div class="accordion-body">
+              双击 <code>index.html</code>，在 Chrome / Edge 等现代浏览器中即可运行，无需安装依赖、无需后端服务器。
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#run2">
+              方式二：本地静态服务器（页面提示“数据加载失败”时使用）
+            </button>
+          </h3>
+          <div id="run2" class="accordion-collapse collapse" data-bs-parent="#run-guide">
+            <div class="accordion-body">
+              部分浏览器会拦截 <code>file://</code> 协议下的 fetch 请求，导致 <code>data.json</code> 无法加载。
+              此时在本目录打开命令行，任选一种方式启动静态服务器：
+              <ul class="mb-0 mt-2">
+                <li>Python：<code>python -m http.server 8000</code></li>
+                <li>Node.js：<code>npx serve .</code></li>
+              </ul>
+              然后在浏览器访问 <code>http://localhost:8000</code>。
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#run3">
+              方式三：从 Git 仓库运行
+            </button>
+          </h3>
+          <div id="run3" class="accordion-collapse collapse" data-bs-parent="#run-guide">
+            <div class="accordion-body">
+              <code>git clone &lt;仓库地址&gt;</code> → 进入 <code>integration</code> 目录 → 按方式一或方式二运行。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center text-muted py-4">
+    软件开发综合实践 · 期末大作业 · Bootstrap 5 + ECharts + A-Frame · 数据来源：课程统一数据集
+  </footer>
+
+  <script src="libs/bootstrap.bundle.min.js"></script>
+  <script src="libs/echarts.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

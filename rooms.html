@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自习室查询 · 校园公共信息与数据展示中心</title>
+  <!-- 引入 Bootstrap 与自定义样式 -->
+  <link href="libs/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <!-- ── 顶部导航栏（与首页保持一致） ── -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-primary mb-4 sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">校园信息中心</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+              aria-controls="mainNav" aria-expanded="false" aria-label="切换导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="rooms.html">自习室查询</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#stats">使用统计</a></li>
+          <li class="nav-item"><a class="nav-link" href="three-d/campus.html">校园三维</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- 页面提示条：加载中 / 加载失败 -->
+    <p id="page-alert" class="alert alert-warning" role="alert">数据加载中...</p>
+
+    <h1 class="h3 mb-4">自习室查询</h1>
+
+    <!-- ── 筛选区：按楼栋、状态筛选 + 关键词搜索 ── -->
+    <section class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <!-- 楼栋筛选 -->
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="filter-building">楼栋</label>
+            <select class="form-select" id="filter-building">
+              <option value="">全部楼栋</option>
+              <!-- 楼栋选项由 JS 动态生成 -->
+            </select>
+          </div>
+          <!-- 状态筛选 -->
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="filter-status">状态</label>
+            <select class="form-select" id="filter-status">
+              <option value="">全部状态</option>
+              <option value="开放">开放</option>
+              <option value="维修">维修</option>
+              <option value="闭馆">闭馆</option>
+            </select>
+          </div>
+          <!-- 关键词搜索 -->
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="filter-keyword">关键词</label>
+            <input type="text" class="form-control" id="filter-keyword" placeholder="输入自习室名称搜索...">
+          </div>
+          <!-- 重置按钮 -->
+          <div class="col-12 col-md-2 d-grid">
+            <button class="btn btn-outline-secondary" id="btn-reset" type="button">重置</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 结果统计：显示当前筛选后的数量 -->
+    <p class="text-muted" id="result-count"></p>
+
+    <!-- ── 自习室卡片列表 ── -->
+    <div class="row g-3" id="room-list">
+      <!-- 卡片由 JS 动态渲染 -->
+    </div>
+  </main>
+
+  <footer class="text-center text-muted py-4">
+    软件开发综合实践 · 期末大作业 · Bootstrap 5 + ECharts + A-Frame · 数据来源：课程统一数据集
+  </footer>
+
+  <!-- 引入 Bootstrap JS（用于导航栏折叠等交互） -->
+  <script src="libs/bootstrap.bundle.min.js"></script>
+
+  <!-- 本页脚本：加载数据、渲染列表、筛选逻辑 -->
+  <script>
+    (function () {
+      'use strict';
+
+      let allRooms = []; // 全部自习室数据缓存
+
+      // 页面就绪后加载数据
+      document.addEventListener('DOMContentLoaded', init);
+
+      /**
+       * 初始化：加载数据 → 填充楼栋下拉 → 渲染列表 → 绑定筛选事件
+       */
+      async function init() {
+        try {
+          const data = await fetch('data.json').then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          });
+          allRooms = data.rooms || [];
+          populateBuildings();    // 填充楼栋下拉选项
+          renderRooms();          // 首次渲染全部列表
+          bindFilters();          // 绑定筛选事件
+          document.getElementById('page-alert').classList.add('d-none');
+        } catch (err) {
+          console.error(err);
+          document.getElementById('page-alert').textContent =
+            '数据加载失败，请使用本地静态服务器运行。';
+        }
+      }
+
+      /**
+       * 填充楼栋下拉框：从数据中提取不重复的楼栋名称
+       */
+      function populateBuildings() {
+        const sel = document.getElementById('filter-building');
+        const buildings = [...new Set(allRooms.map(r => r.building))]; // 去重
+        buildings.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b;
+          sel.appendChild(opt);
+        });
+      }
+
+      /**
+       * 根据当前筛选条件渲染自习室列表
+       */
+      function renderRooms() {
+        // 读取筛选条件
+        const building = document.getElementById('filter-building').value;
+        const status = document.getElementById('filter-status').value;
+        const keyword = document.getElementById('filter-keyword').value.trim().toLowerCase();
+
+        // 按条件过滤
+        const filtered = allRooms.filter(r => {
+          if (building && r.building !== building) return false;
+          if (status && r.status !== status) return false;
+          if (keyword && !r.name.toLowerCase().includes(keyword)) return false;
+          return true;
+        });
+
+        // 更新结果计数
+        document.getElementById('result-count').textContent =
+          `共找到 ${filtered.length} 间自习室`;
+
+        // 渲染卡片
+        const list = document.getElementById('room-list');
+        if (filtered.length === 0) {
+          list.innerHTML = '<div class="col-12 text-center text-muted py-5">没有符合条件的自习室</div>';
+          return;
+        }
+
+        list.innerHTML = filtered.map(r => {
+          const free = r.seats - r.occupied;                          // 空余座位
+          const rate = r.seats > 0 ? Math.round((r.occupied / r.seats) * 100) : 0; // 占用率
+          const statusClass = getStatusClass(r.status);               // 状态对应的徽章样式
+
+          return `
+            <div class="col-12 col-md-6 col-lg-4">
+              <div class="card room-card h-100">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title mb-0">${r.name}</h5>
+                    <span class="status-badge ${statusClass}">${r.status}</span>
+                  </div>
+                  <p class="text-muted small mb-2">${r.building} · ${r.floor}楼</p>
+
+                  <!-- 座位信息 -->
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                      <span>已占用 ${r.occupied} / ${r.seats}</span>
+                      <span>空余 <b>${free}</b> 个</span>
+                    </div>
+                    <div class="seat-bar">
+                      <div class="seat-bar-fill" style="width:${rate}%"></div>
+                    </div>
+                  </div>
+
+                  <!-- 开放时间 -->
+                  <p class="text-muted small mt-auto mb-0">🕐 ${r.hours}</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      /**
+       * 根据状态文本返回对应的 CSS 类名
+       * @param {string} status - 状态：开放/维修/闭馆
+       * @returns {string} CSS 类名
+       */
+      function getStatusClass(status) {
+        switch (status) {
+          case '开放': return 'status-open';
+          case '维修': return 'status-repair';
+          case '闭馆': return 'status-closed';
+          default: return 'status-closed';
+        }
+      }
+
+      /**
+       * 绑定筛选控件的事件：变化时重新渲染
+       */
+      function bindFilters() {
+        document.getElementById('filter-building').addEventListener('change', renderRooms);
+        document.getElementById('filter-status').addEventListener('change', renderRooms);
+        document.getElementById('filter-keyword').addEventListener('input', renderRooms);
+
+        // 重置按钮：清空所有筛选条件
+        document.getElementById('btn-reset').addEventListener('click', () => {
+          document.getElementById('filter-building').value = '';
+          document.getElementById('filter-status').value = '';
+          document.getElementById('filter-keyword').value = '';
+          renderRooms();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
