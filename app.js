@@ -93,13 +93,16 @@ const renderCharts = () => {
 
 // ── 数据加载：加载中 / 成功 / 数据为空 / 网络失败 四状态 ──
 const loadData = async () => {
+  console.log('[调试] 开始加载 data.json 数据...');
   showPageAlert('数据加载中...', 'warning');
   try {
     const response = await fetch('data.json');
+    console.log('[调试] fetch 响应状态码：', response.status);
     if (!response.ok) {
       throw new Error('HTTP ' + response.status);
     }
     const data = await response.json();
+    console.log('[调试] 数据解析成功，标题：', data.title, '，共', data.rooms?.length || 0, '条自习室记录');
     if (!data.rooms || data.rooms.length === 0) {
       showPageAlert('数据为空：data.json 中没有自习室数据，无法绘制图表', 'warning');
       return;
@@ -109,7 +112,9 @@ const loadData = async () => {
     renderSummary();
     renderCharts();
     statsSource.textContent = `${data.title} · ${data.source}`;
+    console.log('[调试] 概览卡片与图表渲染完成');
   } catch (error) {
+    console.error('[调试] 数据加载失败：', error);
     showPageAlert('数据加载失败：' + error.message + '（请通过本地服务器方式打开页面，见下方运行说明）', 'danger');
   }
 };
