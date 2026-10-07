@@ -3,7 +3,6 @@
 
 const pageAlert = document.querySelector('#page-alert');
 const summaryCards = document.querySelector('#summary-cards');
-const dataUpdated = document.querySelector('#data-updated');
 const statsSource = document.querySelector('#stats-source');
 
 let rooms = [];
@@ -109,7 +108,6 @@ const loadData = async () => {
     rooms = data.rooms;
     renderSummary();
     renderCharts();
-    dataUpdated.textContent = `数据更新时间：${data.updated} · ${data.source}`;
     statsSource.textContent = `${data.title} · ${data.source}`;
   } catch (error) {
     showPageAlert('数据加载失败：' + error.message + '（请通过本地服务器方式打开页面，见下方运行说明）', 'danger');
